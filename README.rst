@@ -1,19 +1,20 @@
 ===============================
 web.sh
 ===============================
-.. image:: https://img.shields.io/travis/westurner/websh.svg
-        :target: https://travis-ci.org/westurner/websh
+.. image:: https://img.shields.io/travis/westurner/web.sh.svg
+        :target: https://travis-ci.org/westurner/web.sh
 
-.. image:: https://img.shields.io/pypi/v/websh.svg
-        :target: https://pypi.python.org/pypi/websh
+.. image:: https://img.shields.io/pypi/v/web.sh.svg
+        :target: https://pypi.python.org/pypi/web.sh
 
-| Source: git https://github.com/westurner/web.sh
 
 web.sh is a cross-platform script (web) and API for launching a browser
 (with ``x-www-browser`` (Linux, Unix), ``open`` (OSX), ``start`` (Windows),
 or ``python -m webbrowser``)
 
 * Free software: BSD license
+* Source: git https://github.com/westurner/web.sh
+
 
 .. contents::
 
