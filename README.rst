@@ -13,7 +13,9 @@ web.sh is a cross-platform script (web) and API for launching a browser
 or ``python -m webbrowser``)
 
 * Free software: BSD license
-* Source: git https://github.com/westurner/web.sh
+* PyPI: https://pypi.python.org/pypi/web.sh
+* Warehouse: https://warehouse.python.org/project/web.sh
+* Source: https://github.com/westurner/web.sh
 
 
 .. contents::
