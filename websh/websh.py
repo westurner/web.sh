@@ -21,7 +21,10 @@ import optparse
 import os
 import subprocess
 import sys
-import urlparse
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 import webbrowser
 
 log = logging.getLogger('websh')
@@ -165,20 +168,20 @@ class WebBrowser(object):
                 if not netloc:
                     # if we can recognize the domain, upgrade to https
                     if cls.match_domain(path):
-                        full_url = "https://{}".format(_url)
+                        full_url = "https://{0}".format(_url)
                     else:
                         if _url:
                             if _url[0] in ('.', '/'):
-                                full_url = 'file://{}'.format(
+                                full_url = 'file://{0}'.format(
                                     os.path.abspath(_url))  # PWD
                             else:
-                                full_url = "http://{}".format(_url)
+                                full_url = "http://{0}".format(_url)
                         else:
                             full_url = _url
                 elif cls.match_domain(netloc):
-                    full_url = 'https://{}'.format(_url)
+                    full_url = 'https://{0}'.format(_url)
                 else:
-                    full_url = 'http://{}'.format(_url)
+                    full_url = 'http://{0}'.format(_url)
         else:
             if scheme == 'http':
                 if cls.match_domain(netloc):
