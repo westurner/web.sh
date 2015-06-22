@@ -22,17 +22,18 @@ test_requirements = [
 
 __version__ = '0.1.1'
 description = (
-    """websh is a cross-platform script and API for launching a browser """,
-    """(with x-www-browser, open, python:webbrowser.open)""")
+    """web.sh is a cross-platform script (web) and API for launching a browser"""
+    """(with x-www-browser (Linux, Unix), open (OSX), start (Windows),"""
+    """or python -m webbrowser)""")
 
 setup(
-    name='websh',
+    name='web.sh',
     version=__version__,
     description=description,
     long_description=readme + '\n\n' + history,
     author="Wes Turner",
     author_email='wes@wrd.nu',
-    url='https://github.com/westurner/websh',
+    url='https://github.com/westurner/web.sh',
     packages=[
         'websh',
     ],
@@ -40,6 +41,11 @@ setup(
                  'websh'},
     include_package_data=True,
     install_requires=requirements,
+    entry_points="""
+    [console_scripts]
+    web = websh.websh:main
+    x-www-browser- = websh.websh:main
+    """,
     license="BSD",
     zip_safe=False,
     keywords='websh browser webbrowser x-www-browser',
