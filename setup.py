@@ -20,7 +20,7 @@ requirements = [
 test_requirements = [
 ]
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 description = (
     """web.sh is a cross-platform script (web) and API for launching a browser"""
     """(with x-www-browser (Linux, Unix), open (OSX), start (Windows),"""
