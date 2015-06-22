@@ -24,8 +24,8 @@ import sys
 import urlparse
 import webbrowser
 
-log = logging.getLogger()
-log.setLevel(logging.DEBUG)
+log = logging.getLogger('websh')
+log.setLevel(logging.INFO)
 
 
 class WebBrowser(object):
@@ -81,7 +81,8 @@ class WebBrowser(object):
             kwargs (dict): kwargs
         """
         _url = self.expand_url(url)
-        _url
+        cmd = ('/path/to/executable', 'arg1', _url)
+        log.info(('cmd', cmd))
         raise NotImplementedError("See: *_WebBrowser")
 
     @staticmethod
@@ -154,7 +155,7 @@ class WebBrowser(object):
         full_url = 0j
 
         scheme, netloc, path, query, frag = urlparse.urlsplit(_url)
-        log.debug(dict(url=_url, split=tuple(urlparse.urlsplit(_url))))
+        log.debug((('url', _url), ('split', tuple(urlparse.urlsplit(_url)))))
         if not scheme:
             # paths that start with '//' should pass through (as with HTML)
             if _url.startswith('//'):
@@ -192,9 +193,9 @@ class WebBrowser(object):
             raise Exception(_url)
             # full_url = _url
 
-        log.info({
-            'url': url,
-            'full_url': full_url})
+        log.info((
+            ('url', url),
+            ('full_url', full_url)))
         return full_url
 
     ALWAYS_HTTPS_DOMAINS = {
@@ -216,6 +217,8 @@ class X_www_WebBrowser(WebBrowser):
     def open_new_tab(cls, url, **kwargs):
         _url = cls.expand_url(url)
         cmd = (cls.BIN, _url)
+        log.info(('cmd', cmd))
+        log.info(('cmdstr', u'# %s' % ' '.join(cmd)))
         output = subprocess.check_output(cmd)  # TODO: remove , url)
         return (_url, output)
 
@@ -229,6 +232,8 @@ class OSX_open_WebBrowser(WebBrowser):
     def open_new_tab(cls, url, **kwargs):
         _url = cls.expand_url(url)
         cmd = (cls.BIN, _url)
+        log.info(('cmd', cmd))
+        log.info(('cmdstr', u'# %s' % ' '.join(cmd)))
         output = subprocess.check_output(cmd)
         return (_url, output)
 
@@ -240,6 +245,8 @@ class Windows_start_WebBrowser(WebBrowser):
     def open_new_tab(cls, url, **kwargs):
         _url = cls.expand_url(url)
         cmd = ("start", "", _url)
+        log.info(('cmd', cmd))
+        log.info(('cmdstr', u'# %s' % ' '.join(cmd)))
         output = subprocess.check_output(cmd)
         return (_url, output)
 
@@ -253,6 +260,8 @@ class Python_webbrowser_WebBrowser(WebBrowser):
         if webbrowser:
             # show commands in the process tree
             cmd = (sys.executable, '-m', 'webbrowser', _url)
+            log.info(('cmd', cmd))
+            log.info(('cmdstr', u'# %s' % ' '.join(cmd)))
             output = subprocess.check_output(cmd)
             return _url, output
         raise ImportError('webbrowser')
@@ -362,7 +371,7 @@ def main(argv=None):
                    dest='run_tests',
                    action='store_true',)
 
-    argv = list(argv) if argv else []
+    argv = list(argv) if argv is not None else None
     (opts, args) = prs.parse_args(args=argv)
 
     loglevel = logging.INFO
@@ -370,16 +379,22 @@ def main(argv=None):
         loglevel = logging.DEBUG
     elif opts.quiet:
         loglevel = logging.ERROR
-    logging.basicConfig(level=loglevel)
+
+    if loglevel == logging.DEBUG:
+        logging.basicConfig(
+            level=loglevel,
+            format='%(asctime)s.%(msecs)03d %(name)-5s %(lineno)-4s %(levelname)-8s %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S')
+    else:
+        logging.basicConfig(
+            level=loglevel,
+            format='%(asctime)s.%(msecs)03d %(name)-5s %(levelname)-6s %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S')
+
+    log.setLevel(loglevel)
     log.debug('argv: %r', argv)
     log.debug('opts: %r', opts)
     log.debug('args: %r', args)
-
-    if not opts.quiet:
-        logging.basicConfig()
-
-        if opts.verbose:
-            logging.getLogger().setLevel(logging.DEBUG)
 
     if opts.run_tests:
         sys.argv = [sys.argv[0]] + args
@@ -387,10 +402,11 @@ def main(argv=None):
         sys.exit(unittest.main())
 
     if not len(args):
-        prs.exit(status=2, msg="Specify one or more URLs to open")
+        prs.print_help()
+        prs.exit(status=2, msg="Err: Specify one or more URLs to open\n")
 
     for output in WebBrowser.x_www_browser(args, webbrowser=opts.webbrowser):
-        print(output)
+        log.info(('result', output))
 
     return 0
 
