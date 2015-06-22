@@ -2,18 +2,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 """
-x_www_browser
+web.sh
+=======
+web.sh is a cross-platform script (web) and API for launching a browser
+(with x-www-browser (Linux, Unix), open (OSX), start (Windows),
+or python -m webbrowser)
 
-::
-
-    urls=(["http://en.wikipedia.org",
-           "http://en.wikipedia.org"
-           "en.wikipedia.org"])
-    output = list(WebBrowser.x_www_browser(urls))
-    print(output)
+.. note:: This file is vendorable by just copying this file to
+   a directory on ``$PATH`` (e.g. ``${__DOTFILES}/scripts/web``);
+   it must not import from anything but the Python standard library.
 
 """
-
 
 import collections
 import distutils.spawn
@@ -23,19 +22,18 @@ import os
 import subprocess
 import sys
 import urlparse
-import warnings
 import webbrowser
 
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
 
-
 class WebBrowser(object):
+
     """
     Base class for WebBrowser CLI interaction (open_new_tab)
     """
-    platforms=[]
+    platforms = []
 
     def __init__(self, *args, **kwargs):
         if hasattr(self, 'setUp'):
@@ -51,7 +49,7 @@ class WebBrowser(object):
             X_www_WebBrowser,
             OSX_open_WebBrowser,
             Windows_start_WebBrowser,
-            #Test_WebBrowser,
+            # Test_WebBrowser,
         ]
         for cls in classes:
             for platformstr in cls.platforms:
@@ -68,11 +66,10 @@ class WebBrowser(object):
         if platform is None:
             platform = sys.platform
         clsmap = cls.get_CLSMAP()
-        platform_classes = clsmap.get(platform,
-                                 clsmap.get('*',
-                                            (Python_webbrowser_WebBrowser,)))
+        platform_classes = clsmap.get(
+            platform, clsmap.get(
+                '*', (Python_webbrowser_WebBrowser,)))
         return platform_classes[0]
-
 
     def open_new_tab(self, url, **kwargs):
         """
@@ -84,8 +81,8 @@ class WebBrowser(object):
             kwargs (dict): kwargs
         """
         _url = self.expand_url(url)
+        _url
         raise NotImplementedError("See: *_WebBrowser")
-
 
     @staticmethod
     def x_www_browser(urls, **kwargs):
@@ -114,6 +111,37 @@ class WebBrowser(object):
                 raise
 
     @classmethod
+    def match_domain(cls, domainstr, suffix=False, matchset=None):
+        """
+        Match a string against a matchset, optionally with suffix matching.
+
+        Args:
+            domainstr (str): string to match against list
+        Keyword Arguments:
+            suffix (bool): match patterns as suffixes (if False, str.__cmp__)
+            matchset (list or None): list of match patterns
+                (default: cls.ALWAYS_HTTPS_DOMAINS)
+        Returns:
+            object or False: matching pattern or False
+        """
+        match = cls
+        if matchset is None:
+            matchset = cls.ALWAYS_HTTPS_DOMAINS
+        if suffix:
+            def matchfunc(x):
+                return domainstr.endswith(x)
+        else:
+            def matchfunc(x):
+                return domainstr == x
+        for patternstr in matchset:
+            if matchfunc(patternstr):
+                match = patternstr
+                break
+        if match != cls:
+            return match
+        return False
+
+    @classmethod
     def expand_url(cls, url):
         """
         Args:
@@ -128,28 +156,31 @@ class WebBrowser(object):
         scheme, netloc, path, query, frag = urlparse.urlsplit(_url)
         log.debug(dict(url=_url, split=tuple(urlparse.urlsplit(_url))))
         if not scheme:
+            # paths that start with '//' should pass through (as with HTML)
             if _url.startswith('//'):
                 full_url = _url
             else:
+                # if urlsplit doesn't have a netloc, try path
                 if not netloc:
-                    if path in cls.ALWAYS_HTTPS_DOMAINS:
+                    # if we can recognize the domain, upgrade to https
+                    if cls.match_domain(path):
                         full_url = "https://{}".format(_url)
                     else:
                         if _url:
                             if _url[0] in ('.', '/'):
                                 full_url = 'file://{}'.format(
-                                    os.path.abspath(_url)) # PWD
+                                    os.path.abspath(_url))  # PWD
                             else:
                                 full_url = "http://{}".format(_url)
                         else:
                             full_url = _url
-                elif netloc in cls.ALWAYS_HTTPS_DOMAINS:
+                elif cls.match_domain(netloc):
                     full_url = 'https://{}'.format(_url)
                 else:
                     full_url = 'http://{}'.format(_url)
         else:
             if scheme == 'http':
-                if netloc in cls.ALWAYS_HTTPS_DOMAINS:
+                if cls.match_domain(netloc):
                     full_url = _url.replace('http:', 'https:', 1)
                 else:
                     full_url = _url
@@ -177,7 +208,7 @@ class WebBrowser(object):
 
 
 class X_www_WebBrowser(WebBrowser):
-    platforms=['linux']
+    platforms = ['linux']
     XWWWBIN = '/usr/bin/x-www-browser'
     BIN = XWWWBIN
 
@@ -185,12 +216,12 @@ class X_www_WebBrowser(WebBrowser):
     def open_new_tab(cls, url, **kwargs):
         _url = cls.expand_url(url)
         cmd = (cls.BIN, _url)
-        output = subprocess.check_output(cmd) # TODO: remove , url)
+        output = subprocess.check_output(cmd)  # TODO: remove , url)
         return (_url, output)
 
 
 class OSX_open_WebBrowser(WebBrowser):
-    platforms=['darwin']
+    platforms = ['darwin']
     OPENBIN = distutils.spawn.find_executable('open')
     BIN = OPENBIN
 
@@ -203,7 +234,7 @@ class OSX_open_WebBrowser(WebBrowser):
 
 
 class Windows_start_WebBrowser(WebBrowser):
-    platforms=['win32']
+    platforms = ['win32']
 
     @classmethod
     def open_new_tab(cls, url, **kwargs):
@@ -214,7 +245,7 @@ class Windows_start_WebBrowser(WebBrowser):
 
 
 class Python_webbrowser_WebBrowser(WebBrowser):
-    platforms=['*']
+    platforms = ['*']
 
     @classmethod
     def open_new_tab(cls, url, **kwargs):
@@ -224,12 +255,14 @@ class Python_webbrowser_WebBrowser(WebBrowser):
             cmd = (sys.executable, '-m', 'webbrowser', _url)
             output = subprocess.check_output(cmd)
             return _url, output
-        raise ImportError('webbrowser', args, kwargs)
-
+        raise ImportError('webbrowser')
 
 
 import unittest
+
+
 class Test_WebBrowser(unittest.TestCase, WebBrowser):
+
     @staticmethod
     def open_new_tab(url, *args, **kwargs):
         _url = WebBrowser.expand_url(url)
@@ -249,20 +282,20 @@ class Test_WebBrowser(unittest.TestCase, WebBrowser):
 
         urls = [
 
-            #("",""), # '' is not True
+            # ("",""), # '' is not True
 
             ("/", "file:///"),
             ("/path", "file:///path"),
-            ("/test2.com","file:///test2.com"),
+            ("/test2.com", "file:///test2.com"),
 
-            (".","file://" + os.path.abspath('.')),
+            (".", "file://" + os.path.abspath('.')),
             ("./", "file://" + os.path.abspath("./")),
             ("./path?q#f", "file://" + os.path.abspath("./path?q#f")),
 
             ("path?q#f", "http://path?q#f"),
             ("example.org/path?q#f", "http://example.org/path?q#f"),
 
-            ("//","//"),
+            ("//", "//"),
             ("//example.org", "//example.org"),
             ("//h/p?q#f", "//h/p?q#f"),
             ("//h/p?q#f/", "//h/p?q#f/"),
@@ -271,11 +304,17 @@ class Test_WebBrowser(unittest.TestCase, WebBrowser):
             ("https://h/p?q#f", "https://h/p?q#f"),
             ("file://path#fx", "file://path#fx"),
 
-            # cls.ALWAYS_HTTPS_DOMAINS
+            # cls.ALWAYS_HTTPS_DOMAINS (TODO: match_domain)
             ("http://wikipedia.org",     "https://wikipedia.org"),
             ("wikipedia.org",            "https://wikipedia.org"),
             ("en.wikipedia.org",         "https://en.wikipedia.org"),
             ("https://en.wikipedia.org", "https://en.wikipedia.org"),
+            # suffix=False
+            ("other.xyz.wikipedia.org",  "http://other.xyz.wikipedia.org"),
+            ("./en.wikipedia.org",  "file://" +
+             os.path.abspath("./") +
+             "/en.wikipedia.org"),
+            # TODO: edge cases ?
         ]
         for url, expected_output in urls:
             output = WebBrowser.expand_url(url)
@@ -291,16 +330,16 @@ class Test_WebBrowser(unittest.TestCase, WebBrowser):
             self.assertTrue(output)
 
 
-def main():
+def main(argv=None):
     prs = optparse.OptionParser(
         usage="%prog [-b|-x|-o|-s| <url1> [<url_n>]",
-        description="Open a webbrowser (default: detect sys.platform)")
+        description="Open the configured system default webbrowser")
 
     prs.add_option('--webbrowser', '-b', dest='webbrowser',
                    help="Open with `python -m webbrowser`",
                    const=Python_webbrowser_WebBrowser,
                    action='store_const')
-    prs.add_option('--x-www-browser','-x', dest='webbrowser',
+    prs.add_option('--x-www-browser', '-x', dest='webbrowser',
                    help="Open with `x-www-browser`",
                    const=X_www_WebBrowser,
                    action='store_const')
@@ -314,16 +353,27 @@ def main():
                    action='store_const')
 
     prs.add_option('-v', '--verbose',
-                    dest='verbose',
-                    action='store_true',)
+                   dest='verbose',
+                   action='store_true',)
     prs.add_option('-q', '--quiet',
-                    dest='quiet',
-                    action='store_true',)
+                   dest='quiet',
+                   action='store_true',)
     prs.add_option('-t', '--test',
-                    dest='run_tests',
-                    action='store_true',)
+                   dest='run_tests',
+                   action='store_true',)
 
-    (opts, args) = prs.parse_args()
+    argv = list(argv) if argv else []
+    (opts, args) = prs.parse_args(args=argv)
+
+    loglevel = logging.INFO
+    if opts.verbose:
+        loglevel = logging.DEBUG
+    elif opts.quiet:
+        loglevel = logging.ERROR
+    logging.basicConfig(level=loglevel)
+    log.debug('argv: %r', argv)
+    log.debug('opts: %r', opts)
+    log.debug('args: %r', args)
 
     if not opts.quiet:
         logging.basicConfig()
@@ -346,5 +396,4 @@ def main():
 
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    sys.exit(main(argv=sys.argv[1:]))
