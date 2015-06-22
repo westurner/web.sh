@@ -22,7 +22,14 @@ History
 * RLS: setup.py, __init__.py: ``__version__ = 0.1.2``
 * First release on PyPI
 
-0.1.2 (2015-06-21)
+0.1.3 (2015-06-21)
 -------------------
 * DOC: README.rst, HISTORY.rst: formatting, links, release notes
 
+0.1.4 (2015-06-21)
+-------------------
+* RLS: setup.py, __init__.py: __version = '0.1.4' [8e33773]
+* BUG: websh.py: py26, py34 compat [a6ed31a]
+* BLD: tox.ini, .travis.yml: commands = python websh/websh.py -v -t [295abab]
+* DOC: websh.py, README.rst: usage docstrings [d054b43]
+* DOC: README.rst: links [bc1d06c]
