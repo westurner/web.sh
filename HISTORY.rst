@@ -1,7 +1,9 @@
+
 .. :changelog:
 
+========
 History
--------
+========
 
 0.1.1 (2015-06-21)
 ---------------------
@@ -19,4 +21,8 @@ History
 * DOC: README.rst: API docs
 * RLS: setup.py, __init__.py: ``__version__ = 0.1.2``
 * First release on PyPI
+
+0.1.2 (2015-06-21)
+-------------------
+* DOC: README.rst, HISTORY.rst: formatting, links, release notes
 
