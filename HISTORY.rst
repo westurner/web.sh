@@ -6,8 +6,6 @@ History
 0.1.1 (2015-06-21)
 ---------------------
 
-* First release on PyPI
-
 * DOC: README.rst: links, Features, Usage, API
 * BLD: setup.py console_script entrypoint ``web = websh.web:main``
 * BLD: setup.py console_script entrypoint ``x-www-browser- = websh.web:main``
@@ -20,3 +18,5 @@ History
 -------------------
 * DOC: README.rst: API docs
 * RLS: setup.py, __init__.py: ``__version__ = 0.1.2``
+* First release on PyPI
+
