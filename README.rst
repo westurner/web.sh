@@ -72,10 +72,10 @@ The ``web`` script commandline interface:
 
 API
 ----
-* Instances of ``websh.web.WebBrowser`` implement ``open_new_tab()``
-* ``websh.web.WebBrowser.x_www_browser`` calls ``open_new_tab()``
+* Instances of ``websh.websh.WebBrowser`` implement ``open_new_tab()``
+* ``websh.websh.WebBrowser.x_www_browser`` calls ``open_new_tab()``
   with a list of paths and/or URIs
-* ``web <urls>`` calls ``websh.web.WebBrowser.x_www_browser``
+* ``web <urls>`` calls ``websh.websh.WebBrowser.x_www_browser``
   to open new tabs for each path or URI:
 
   .. code:: python
