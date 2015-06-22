@@ -341,23 +341,24 @@ class Test_WebBrowser(unittest.TestCase, WebBrowser):
 
 def main(argv=None):
     prs = optparse.OptionParser(
-        usage="%prog [-b|-x|-o|-s| <url1> [<url_n>]",
-        description="Open the configured system default webbrowser")
+        usage="%prog [-b|-x|-o|-s] [-v|-q] <url1> [<url_n>]",
+        description=("Open paths or URIS as tabs in the "
+                     "configured system default webbrowser"))
 
     prs.add_option('--webbrowser', '-b', dest='webbrowser',
                    help="Open with `python -m webbrowser`",
                    const=Python_webbrowser_WebBrowser,
                    action='store_const')
     prs.add_option('--x-www-browser', '-x', dest='webbrowser',
-                   help="Open with `x-www-browser`",
+                   help="Open with `x-www-browser` (Linux, X)",
                    const=X_www_WebBrowser,
                    action='store_const')
     prs.add_option('--open', '-o', dest='webbrowser',
-                   help="Open with `open`",
+                   help="Open with `open` (OSX)",
                    const=OSX_open_WebBrowser,
                    action='store_const')
     prs.add_option('--start', '-s', dest='webbrowser',
-                   help="Open with `start ""`",
+                   help="Open with `start` (Windows)",
                    const=Windows_start_WebBrowser,
                    action='store_const')
 

@@ -55,23 +55,22 @@ The ``web`` script commandline interface:
     web westurner.org/dotfiles github.com/westurner/dotfiles  # !HTTPS!
     x-www-browser- .
 
-``web --help`` commandline help:
+``web --help`` commandline help::
 
-::
+    Usage: websh.py [-b|-x|-o|-s] [-v|-q] <url1> [<url_n>]
 
-    Usage: web [-b|-x|-o|-s| <url1> [<url_n>]
-
-    Open a webbrowser (default: detect sys.platform)
+    Open paths or URIS as tabs in the configured system default webbrowser
 
     Options:
-    -h, --help           show this help message and exit
-    -b, --webbrowser     Open with `python -m webbrowser`
-    -x, --x-www-browser  Open with `x-www-browser`
-    -o, --open           Open with `open`
-    -s, --start          Open with `start `
-    -v, --verbose
-    -q, --quiet
-    -t, --test
+      -h, --help           show this help message and exit
+      -b, --webbrowser     Open with `python -m webbrowser`
+      -x, --x-www-browser  Open with `x-www-browser` (Linux, X)
+      -o, --open           Open with `open` (OSX)
+      -s, --start          Open with `start` (Windows)
+      -v, --verbose        
+      -q, --quiet          
+      -t, --test          
+
 
 API
 ----
