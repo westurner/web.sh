@@ -21,7 +21,10 @@ import optparse
 import os
 import subprocess
 import sys
-import urlparse
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 import webbrowser
 
 log = logging.getLogger('websh')
@@ -165,20 +168,20 @@ class WebBrowser(object):
                 if not netloc:
                     # if we can recognize the domain, upgrade to https
                     if cls.match_domain(path):
-                        full_url = "https://{}".format(_url)
+                        full_url = "https://{0}".format(_url)
                     else:
                         if _url:
                             if _url[0] in ('.', '/'):
-                                full_url = 'file://{}'.format(
+                                full_url = 'file://{0}'.format(
                                     os.path.abspath(_url))  # PWD
                             else:
-                                full_url = "http://{}".format(_url)
+                                full_url = "http://{0}".format(_url)
                         else:
                             full_url = _url
                 elif cls.match_domain(netloc):
-                    full_url = 'https://{}'.format(_url)
+                    full_url = 'https://{0}'.format(_url)
                 else:
-                    full_url = 'http://{}'.format(_url)
+                    full_url = 'http://{0}'.format(_url)
         else:
             if scheme == 'http':
                 if cls.match_domain(netloc):
@@ -341,23 +344,24 @@ class Test_WebBrowser(unittest.TestCase, WebBrowser):
 
 def main(argv=None):
     prs = optparse.OptionParser(
-        usage="%prog [-b|-x|-o|-s| <url1> [<url_n>]",
-        description="Open the configured system default webbrowser")
+        usage="%prog [-b|-x|-o|-s] [-v|-q] <url1> [<url_n>]",
+        description=("Open paths or URIS as tabs in the "
+                     "configured system default webbrowser"))
 
     prs.add_option('--webbrowser', '-b', dest='webbrowser',
                    help="Open with `python -m webbrowser`",
                    const=Python_webbrowser_WebBrowser,
                    action='store_const')
     prs.add_option('--x-www-browser', '-x', dest='webbrowser',
-                   help="Open with `x-www-browser`",
+                   help="Open with `x-www-browser` (Linux, X)",
                    const=X_www_WebBrowser,
                    action='store_const')
     prs.add_option('--open', '-o', dest='webbrowser',
-                   help="Open with `open`",
+                   help="Open with `open` (OSX)",
                    const=OSX_open_WebBrowser,
                    action='store_const')
     prs.add_option('--start', '-s', dest='webbrowser',
-                   help="Open with `start ""`",
+                   help="Open with `start` (Windows)",
                    const=Windows_start_WebBrowser,
                    action='store_const')
 
