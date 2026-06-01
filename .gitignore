@@ -41,3 +41,10 @@ output/*/index.html
 
 # Sphinx
 docs/_build
+
+# run_tests
+cov.xml
+cov.txt
+pytest-results.xml
+reports/latest
+reports/pytest_replog.db
