@@ -4,7 +4,8 @@ from __future__ import print_function
 """
 web.sh
 =======
-web.sh is a cross-platform script (web) and API for launching a browser
+web.sh is a cross-platform script (``web`` (or ``websh.py``)
+and CLI API for launching a browser
 (with x-www-browser (Linux, Unix), open (OSX), start (Windows),
 or python -m webbrowser)
 
@@ -15,17 +16,19 @@ or python -m webbrowser)
 """
 
 import collections
-import distutils.spawn
 import logging
 import optparse
 import os
 import subprocess
 import sys
+import webbrowser
+
 try:
-    import urlparse
+    import urlparse  # type: ignore
+    from distutils import spawn as _which  # type: ignore
 except ImportError:
     import urllib.parse as urlparse
-import webbrowser
+    from shutil import which as _which
 
 log = logging.getLogger('websh')
 log.setLevel(logging.INFO)
@@ -178,10 +181,6 @@ class WebBrowser(object):
                                 full_url = "http://{0}".format(_url)
                         else:
                             full_url = _url
-                elif cls.match_domain(netloc):
-                    full_url = 'https://{0}'.format(_url)
-                else:
-                    full_url = 'http://{0}'.format(_url)
         else:
             if scheme == 'http':
                 if cls.match_domain(netloc):
@@ -191,23 +190,18 @@ class WebBrowser(object):
             else:
                 full_url = _url
 
-        assert full_url != 0j
-        if full_url is 0j:
-            raise Exception(_url)
-            # full_url = _url
-
         log.info((
             ('url', url),
             ('full_url', full_url)))
         return full_url
 
     ALWAYS_HTTPS_DOMAINS = {
-        "wikipedia.org": 1,
-        "en.wikipedia.org": 1,
-        "github.com": 1,
-        "github.io": 1,
-        "bitbucket.org": 1,
-        "google.com": 1,
+        "wikipedia.org": True,
+        "en.wikipedia.org": True,
+        "github.com": True,
+        "github.io": True,
+        "bitbucket.org": True,
+        "google.com": True,
     }
 
 
@@ -228,7 +222,7 @@ class X_www_WebBrowser(WebBrowser):
 
 class OSX_open_WebBrowser(WebBrowser):
     platforms = ['darwin']
-    OPENBIN = distutils.spawn.find_executable('open')
+    OPENBIN = _which('open')
     BIN = OPENBIN
 
     @classmethod
@@ -255,7 +249,7 @@ class Windows_start_WebBrowser(WebBrowser):
 
 
 class Python_webbrowser_WebBrowser(WebBrowser):
-    platforms = ['*']
+    platforms = ['*', 'linux']
 
     @classmethod
     def open_new_tab(cls, url, **kwargs):
